@@ -5,6 +5,4 @@ app.use(express.static(__dirname + '/'));
 
 app.listen(3000);
 
-
-
-console.log("Running at Port 3000");
+console.log("Running on Port 3000");
