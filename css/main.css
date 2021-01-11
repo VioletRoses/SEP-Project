@@ -6,3 +6,30 @@ body {
   color: #fefefe;
   background-color: #333;
 }
+
+a {
+  color: #fefefe
+}
+
+a:visited {
+  color: aliceblue;
+}
+
+ul {
+  width: 50%;
+  list-style-type: none;
+  display: inline-block;
+  text-align: left;
+}
+
+#title {
+  font-size: 150%;
+}
+
+#body {
+  font-size: 75%;
+}
+
+#url {
+  font-size: 50%;
+}
