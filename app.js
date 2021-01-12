@@ -5,7 +5,7 @@ var axios = require("axios").default;
 var options = {
   method: 'GET',
   url: 'https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/WebSearchAPI', 
-  params: {q: 'taylor swift', pageNumber: '1', pageSize: '10', autoCorrect: 'true'},
+  params: {q: 'topical', pageNumber: '1', pageSize: '50', autoCorrect: 'true'},
   headers: {
     'x-rapidapi-key': '9f3980d96emshfeec0b04d23d3f0p1344dcjsn4727ef038e0f',
     'x-rapidapi-host': 'contextualwebsearch-websearch-v1.p.rapidapi.com'
@@ -22,18 +22,29 @@ app.get('/', (req, res) => {
   io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('query', (qry) => {
+      console.log(qry);
+      var results = [];
+      var pageNum = 1;
       options.params.q = qry;
+        axios.request(options).then(function (response) {
+          console.log(response.data);
+          for (let index = 0; index < response.data.value.length; index++) {
+            const element = response.data.value[index];
+            if (element.url.includes('.org')) {
+              results.push(element);
+            } else if (element.url.includes('.edu')) {
+              results.push(element);
+            } else if (element.url.includes('.gov')) {
+              results.push(element);
+            }
+          }
+          pageNum++;
+          socket.emit('results', results);
+        }).catch(function (error) {
+          console.error(error);
+        });
       console.log('Searched for: ' + qry);
-      io.emit('log', qry);
-      axios.request(options).then(function (response) {
-        console.log(response.data);
-        for (let index = 0; index < response.data.value.length; index++) {
-          const element = response.data.value[index];
-          socket.emit('result', element);
-        }
-      }).catch(function (error) {
-        console.error(error);
-      });
+      socket.emit('log', qry);
       
     });
     
