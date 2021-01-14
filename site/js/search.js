@@ -55,6 +55,8 @@ socket.on('results', function(res) {
 	}
 	var extendResultsButton = document.createElement('li').setAttribute('id', 'showMore');
 	var extendResultsLink = document.createElement('a').setAttribute('href', 'javascript:extendResults()');
+	extendResultsLink.textContent = 'Show More';
+	extendResultsButton.appendChild(extendResultsLink);
 	results.appendChild(extendResultsButton);
 });
 
