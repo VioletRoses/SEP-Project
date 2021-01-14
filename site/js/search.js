@@ -53,8 +53,10 @@ socket.on('results', function(res) {
 		results.appendChild(document.createElement('br'));
 		window.scrollTo(0, document.body.scrollHeight);
 	}
-	var extendResultsButton = document.createElement('li').setAttribute('id', 'showMore');
-	var extendResultsLink = document.createElement('a').setAttribute('href', 'javascript:extendResults()');
+	var extendResultsButton = document.createElement('li');
+	extendResultsButton.setAttribute('id', 'showMore');
+	var extendResultsLink = document.createElement('a');
+	extendResultsLink.setAttribute('href', 'javascript:extendResults()');
 	extendResultsLink.textContent = 'Show More';
 	extendResultsButton.appendChild(extendResultsLink);
 	results.appendChild(extendResultsButton);
