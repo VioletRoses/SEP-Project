@@ -8,7 +8,7 @@ var axios = require("axios").default;
 var options = {
 	method: 'GET',
 	url: 'https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/WebSearchAPI', 
-	params: {q: 'topical', pageNumber: '1', pageSize: '50', autoCorrect: 'true'},
+	params: {q: 'topical', pageNumber: '1', pageSize: '50', autoCorrect: 'true', safeSearch: 'true'},
 	headers: {
 		'x-rapidapi-key': '9f3980d96emshfeec0b04d23d3f0p1344dcjsn4727ef038e0f',
 		'x-rapidapi-host': 'contextualwebsearch-websearch-v1.p.rapidapi.com'
