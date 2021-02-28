@@ -15,6 +15,11 @@ var options = {
 	}
 }
 
+var whitelist = [".org", ".edu", ".gov", "bbc.com", "reuters.com", "usatoday.com", "bloomberg.com", "thehill.com", "time.com",
+				 "wsj.com", "politico.com", "theguardian.com", "washingtonpost.com", "nytimes.com"]; //Allowed websites and domain endings
+
+var blacklist = ["blog", "editorial", "opinion", "911truth.org", "answersingenesis.org", "avn.org.au"]; //Websites not allowed that may also fall under the whitelist
+
 app.use(express.static(path.join(__dirname, 'site')));
 http.listen(3000, console.log('listening on *:3000')); //Sets server to listen on port 3000
 
@@ -27,15 +32,14 @@ http.listen(3000, console.log('listening on *:3000')); //Sets server to listen o
 				axios.request(options).then(function (response) { //Retrieves search results from API
 					for (let index = 0; index < response.data.value.length; index++) { //Loops through and filters search results
 						const element = response.data.value[index];
-						if (element.url.includes('blog')) { //Do not show result if the word 'blog' is included
-						} else if (element.url.includes('editorial')) { //Do not show result if 'editorial' is included
-						} else if (element.url.includes('.org')) { //Shows site if ending in .org
-							results.push(element);
-						} else if (element.url.includes('.edu')) { //Shows site if ending in .edu
-							results.push(element);
-						} else if (element.url.includes('.gov')) { //Shows site if ending in .gov
-							results.push(element);
+						var allowed = false;
+						for(let index = 0; index < whitelist.length; index++) {
+							if (element.url.includes(whitelist[index])) allowed = true; //Checks if site is under the whitelist
 						}
+						for(let index = 0; index < blacklist.length; index++) {
+							if(element.url.includes(blacklist[index])) allowed = false;
+						}
+						if(allowed) results.push(element);
 					}
 					options.params.pageNumber = 1; //Resets page number to 1 for new searches
 					socket.emit('results', results); //Pushes results to the user
