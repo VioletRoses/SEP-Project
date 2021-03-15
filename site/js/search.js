@@ -1,12 +1,14 @@
 var socket = io();
 var input = document.getElementById('input');
 var form = document.getElementById('form');
-var pageNum = 1;
+var pageNumber = 1;
 var query = '';
-
+var loadingWheel = document.getElementById("loading-wheel");
+loadingWheel.hidden = true;
 
 form.addEventListener('submit', function(e) {
 	e.preventDefault();
+	loadingWheel.hidden = false;
 	pageNum = 1;
 	document.getElementById('results').remove();
 	var resultsList = document.createElement('ul');
@@ -14,20 +16,20 @@ form.addEventListener('submit', function(e) {
 	document.body.appendChild(resultsList);
 	if (input.value) {
 		query = input.value;
-		socket.emit('query', input.value);
+		socket.emit('query', [input.value, pageNumber]);
 		input.value = '';
 	}
 });
 
 function extendResults() {
-	pageNum++;
+	loadingWheel.hidden = false;
 	document.getElementById('showMore').remove();
-	socket.emit('pageNum', pageNum);
-	socket.emit('query', query);
+	socket.emit('query', [query, pageNumber]);
 }
 
 socket.on('results', function(res) {
 	console.log(res);
+	var scrollY = window.scrollY;
 	var results = document.getElementById('results');
 	for (let index = 0; index < res.length; index++) {
 		const element = res[index];
@@ -51,7 +53,6 @@ socket.on('results', function(res) {
 		}
 		results.appendChild(body);
 		results.appendChild(document.createElement('br'));
-		window.scrollTo(0, document.body.scrollHeight);
 	}
 	var extendResultsButton = document.createElement('li');
 	extendResultsButton.setAttribute('id', 'showMore');
@@ -60,6 +61,12 @@ socket.on('results', function(res) {
 	extendResultsLink.textContent = 'Show More';
 	extendResultsButton.appendChild(extendResultsLink);
 	results.appendChild(extendResultsButton);
+	loadingWheel.hidden = true;
+	window.scrollTo(0, scrollY - 50);
+});
+
+socket.on('pageNum', function (pageNum) {
+	pageNumber = pageNum;
 });
 
 socket.on('log', function(msg) {

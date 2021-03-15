@@ -24,28 +24,45 @@ app.use(express.static(path.join(__dirname, 'site')));
 http.listen(3000, console.log('listening on *:3000')); //Sets server to listen on port 3000
 
 
+	
+
+
 	io.on('connection', (socket) => {
-		socket.on('query', (qry) => {
-			console.log('Searched for: ' + qry); //Logs search the user made
-			var results = []; //Stores final results to push to the user
-			options.params.q = qry; //Changes search option to user's query
-				axios.request(options).then(function (response) { //Retrieves search results from API
-					for (let index = 0; index < response.data.value.length; index++) { //Loops through and filters search results
-						const element = response.data.value[index];
-						var allowed = false;
-						for(let index = 0; index < whitelist.length; index++) {
-							if (element.url.includes(whitelist[index])) allowed = true; //Checks if site is under the whitelist
+
+		function search(resultsNumber, currentResults, pageNum) {
+			var results = currentResults;
+			options.params.pageNumber = pageNum;
+			axios.request(options).then(function (response) { //Retrieves search results from API
+				for (let index = 0; index < response.data.value.length; index++) { //Loops through and filters search results
+					const element = response.data.value[index];
+					var allowed = false;
+					for(let index = 0; index < whitelist.length; index++) {
+						if (element.url.includes(whitelist[index])){
+							allowed = true;
 						}
-						for(let index = 0; index < blacklist.length; index++) {
-							if(element.url.includes(blacklist[index])) allowed = false;
-						}
-						if(allowed) results.push(element);
 					}
-					options.params.pageNumber = 1; //Resets page number to 1 for new searches
-					socket.emit('results', results); //Pushes results to the user
-				}).catch(function (error) {
-					console.error(error);
-				});
+					for(let index = 0; index < blacklist.length; index++) {
+						if(element.url.includes(blacklist[index])) allowed = false;
+					}
+					if(allowed) results.push(element);
+				}
+				console.log(results);
+				console.log(pageNum);
+				if(results.length < resultsNumber) return search(20, results, pageNum + 1);
+				else {
+					socket.emit('results', results);
+					socket.emit('pageNum', pageNum + 1);
+				}
+			}).catch(function (error) {
+				console.error(error);
+			});
+		}
+
+		socket.on('query', (qry) => {
+			console.log('Searched for: ' + qry[0]); //Logs search the user made
+			options.params.q = qry[0]; //Changes search option to user's query
+			var results = search(20, [], qry[1]);
+			
 		});
 		socket.on('pageNum', (pageNum) => {
 			options.params.pageNumber = pageNum; //Sets page number user is searching for
