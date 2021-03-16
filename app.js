@@ -28,32 +28,30 @@ http.listen(3000, console.log('listening on *:3000')); //Sets server to listen o
 
 
 	io.on('connection', (socket) => {
-
 		function search(resultsNumber, currentResults, pageNum) {
 			var results = currentResults;
 			options.params.pageNumber = pageNum;
 			axios.request(options).then(function (response) { //Retrieves search results from API
 				for (let index = 0; index < response.data.value.length; index++) { //Loops through and filters search results
 					const element = response.data.value[index];
-					var allowed = false;
+					var allowed = false; //Defaults to false since websites will *need* to pass whitelist to be shown.
 					for(let index = 0; index < whitelist.length; index++) {
-						if (element.url.includes(whitelist[index])){
-							allowed = true;
-						}
+						if (element.url.includes(whitelist[index])) allowed = true; //Checks and allows website if in the whitelist
 					}
 					for(let index = 0; index < blacklist.length; index++) {
-						if(element.url.includes(blacklist[index])) allowed = false;
+						if(element.url.includes(blacklist[index])) allowed = false; //Checks and disables website if in the blacklist (even if whitelist allows it)
 					}
 					if(allowed) results.push(element);
 				}
-				console.log(results);
-				console.log(pageNum);
-				if(results.length < resultsNumber) return search(20, results, pageNum + 1);
+				console.log('Batch ' + pageNum + ': ' + results.length + " results");
+				if(results.length < resultsNumber) return search(20, results, pageNum + 1); //Checks if more than 20 results are available
 				else {
-					socket.emit('results', results);
-					socket.emit('pageNum', pageNum + 1);
+					console.log('Pushing results...');
+					socket.emit('results', results); //Pushes results to the user
+					socket.emit('pageNum', pageNum + 1); //Pushes last page number searched to user
 				}
-			}).catch(function (error) {
+			}).catch(function (error) { //If request fails for any reason, logs the reason and pushes error to user.
+				socket.emit('error', error);
 				console.error(error);
 			});
 		}
@@ -62,9 +60,5 @@ http.listen(3000, console.log('listening on *:3000')); //Sets server to listen o
 			console.log('Searched for: ' + qry[0]); //Logs search the user made
 			options.params.q = qry[0]; //Changes search option to user's query
 			var results = search(20, [], qry[1]);
-			
-		});
-		socket.on('pageNum', (pageNum) => {
-			options.params.pageNumber = pageNum; //Sets page number user is searching for
 		});
 	});
