@@ -21,7 +21,7 @@ var whitelist = [".org", ".edu", ".gov", "bbc.com", "reuters.com", "usatoday.com
 var blacklist = ["blog", "editorial", "opinion", "911truth.org", "answersingenesis.org", "avn.org.au"]; //Websites not allowed that may also fall under the whitelist
 
 app.use(express.static(path.join(__dirname, 'site')));
-http.listen(3000, console.log('listening on *:3000')); //Sets server to listen on port 3000
+http.listen(80, console.log('listening on *:80')); //Sets server to listen on port 80
 
 
 	
