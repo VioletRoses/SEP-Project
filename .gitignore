@@ -9,3 +9,5 @@ test/*.log
 # IDEs #
 .vscode/
 .idea/
+
+.DS_Store
